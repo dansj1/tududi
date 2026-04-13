@@ -70,6 +70,9 @@ const TaskAttachment = require('./task_attachment')(sequelize);
 const Backup = require('./backup')(sequelize);
 const Matrix = require('./matrix')(sequelize);
 const TaskMatrix = require('./task_matrix')(sequelize);
+const OIDCIdentity = require('./oidc_identity')(sequelize);
+const OIDCStateNonce = require('./oidc_state_nonce')(sequelize);
+const AuthAuditLog = require('./auth_audit_log')(sequelize);
 
 User.hasMany(Area, { foreignKey: 'user_id' });
 Area.belongsTo(User, { foreignKey: 'user_id' });
@@ -213,6 +216,12 @@ TaskMatrix.belongsTo(Task, { foreignKey: 'task_id' });
 TaskMatrix.belongsTo(Matrix, { foreignKey: 'matrix_id' });
 Task.hasMany(TaskMatrix, { foreignKey: 'task_id', as: 'TaskMatrices' });
 Matrix.hasMany(TaskMatrix, { foreignKey: 'matrix_id', as: 'TaskMatrices' });
+// OIDC associations
+User.hasMany(OIDCIdentity, { foreignKey: 'user_id', as: 'OIDCIdentities' });
+OIDCIdentity.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
+
+// Auth audit log associations
+AuthAuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
 
 module.exports = {
     sequelize,
@@ -236,4 +245,7 @@ module.exports = {
     Backup,
     Matrix,
     TaskMatrix,
+    OIDCIdentity,
+    OIDCStateNonce,
+    AuthAuditLog,
 };

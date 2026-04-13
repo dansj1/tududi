@@ -70,12 +70,15 @@ const isActionVerb = (word) => {
  * @returns {string[]} Array of tokens
  */
 const tokenizeText = (text) => {
+    const MAX_TEXT_LENGTH = 10000;
     const tokens = [];
     let currentToken = '';
     let inQuotes = false;
     let i = 0;
 
-    while (i < text.length) {
+    const textLength = Math.min(text.length, MAX_TEXT_LENGTH);
+
+    while (i < textLength) {
         const char = text[i];
 
         if (char === '"' && (i === 0 || text[i - 1] === '+')) {
@@ -288,6 +291,11 @@ const generateSuggestion = (content, tags, projects, cleanedContent) => {
     const hasBookmarkTag = tags.some((tag) => tag.toLowerCase() === 'bookmark');
     const textStartsWithVerb = startsWithVerb(cleanedContent);
     const hasUrl = containsUrl(content);
+
+    // Detect URLs even without a project (for bookmark tag display)
+    if (hasUrl && !hasProject) {
+        return { type: null, reason: 'url_detected' };
+    }
 
     if (!hasProject) {
         return { type: null, reason: null };

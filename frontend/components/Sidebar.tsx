@@ -58,6 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         backups: false,
         calendar: false,
         habits: false,
+        mcp: false,
     });
 
     const toggleDropdown = () => {

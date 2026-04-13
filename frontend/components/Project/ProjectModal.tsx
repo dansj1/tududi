@@ -268,6 +268,21 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             return;
         }
 
+        const MAX_WORDS = 6;
+        const wordCount = formData.name
+            .trim()
+            .split(/\s+/)
+            .filter((word) => word.length > 0).length;
+        if (wordCount > MAX_WORDS) {
+            setError(
+                t(
+                    'errors.projectNameTooLong',
+                    `Project name must be ${MAX_WORDS} words or less`
+                )
+            );
+            return;
+        }
+
         setIsSaving(true);
         try {
             // Add new tags to the global store
@@ -786,7 +801,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none transition duration-150 ease-in-out text-sm"
                                     data-testid="project-save-button"
                                 >
-                                    {project
+                                    {project?.uid || project?.id
                                         ? t(
                                               'modals.updateProject',
                                               'Update Project'

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import i18n from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { getApiPath, getAssetPath } from '../config/paths';
+import OIDCProviderButtons from './Auth/OIDCProviderButtons';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -10,6 +11,9 @@ const Login: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [registrationEnabled, setRegistrationEnabled] = useState(false);
+    const [oidcProviders, setOidcProviders] = useState<
+        Array<{ slug: string; name: string }>
+    >([]);
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
@@ -24,12 +28,15 @@ const Login: React.FC = () => {
         document.documentElement.classList.toggle('dark', isDarkMode);
     }, [isDarkMode]);
 
-    // Check for verification status in URL params
+    // Check for verification status and OIDC errors in URL params
     useEffect(() => {
         const verified = searchParams.get('verified');
         const verifyError = searchParams.get('error');
+        const oidcError = searchParams.get('error');
 
-        if (verified === 'true') {
+        if (oidcError && !verified) {
+            setError(oidcError);
+        } else if (verified === 'true') {
             setSuccessMessage(
                 t(
                     'auth.email_verified',
@@ -81,6 +88,24 @@ const Login: React.FC = () => {
             }
         };
         checkRegistration();
+    }, []);
+
+    // Fetch OIDC providers
+    useEffect(() => {
+        const fetchProviders = async () => {
+            try {
+                const response = await fetch(getApiPath('oidc/providers'), {
+                    credentials: 'include',
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setOidcProviders(data.providers || []);
+                }
+            } catch (err) {
+                console.error('Error fetching OIDC providers:', err);
+            }
+        };
+        fetchProviders();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -136,11 +161,11 @@ const Login: React.FC = () => {
             <nav className="fixed top-0 left-0 right-0 z-50 text-gray-900 dark:text-white">
                 <div className="h-16 flex items-center px-4 sm:px-6 lg:px-8">
                     <img
-                        src={
+                        src={getAssetPath(
                             isDarkMode
-                                ? '/wide-logo-light.png'
-                                : '/wide-logo-dark.png'
-                        }
+                                ? 'wide-logo-light.png'
+                                : 'wide-logo-dark.png'
+                        )}
                         alt="tududi"
                         className="h-9 w-auto"
                     />
@@ -166,6 +191,25 @@ const Login: React.FC = () => {
                                     {error}
                                 </div>
                             )}
+
+                            <OIDCProviderButtons providers={oidcProviders} />
+
+                            {oidcProviders.length > 0 && (
+                                <div className="relative mb-6">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                                    </div>
+                                    <div className="relative flex justify-center text-sm">
+                                        <span className="px-2 bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                                            {t(
+                                                'auth.or_continue_with_email',
+                                                'Or continue with email'
+                                            )}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-4">
                                     <label
