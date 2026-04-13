@@ -7,7 +7,7 @@ const {
 } = require('../../tasks/core/serializers');
 const { buildTaskAttributes } = require('../../tasks/core/builders');
 const { Op } = require('sequelize');
-const { Task, Project, Tag } = require('../../../models');
+const { Task, Project, Tag, TaskMatrix } = require('../../../models');
 
 /**
  * Helper to find task by ID or UID
@@ -461,6 +461,7 @@ function registerTaskTools(server, context, tools) {
                 throw new Error('Access denied');
             }
 
+            await TaskMatrix.destroy({ where: { task_id: task.id } });
             await task.destroy();
 
             return {

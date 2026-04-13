@@ -8,6 +8,7 @@ const eventsRouter = require('./events');
 const {
     Task,
     TaskEvent,
+    TaskMatrix,
     RecurringCompletion,
     Project,
     sequelize,
@@ -910,6 +911,10 @@ router.delete('/task/:uid', requireTaskWriteAccess, async (req, res) => {
             await TaskEvent.destroy({
                 where: { task_id: taskId },
                 force: true,
+            });
+
+            await TaskMatrix.destroy({
+                where: { task_id: taskId },
             });
 
             await sequelize.query('DELETE FROM tasks_tags WHERE task_id = ?', {

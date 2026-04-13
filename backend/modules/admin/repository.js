@@ -16,6 +16,7 @@ const {
     ApiToken,
     Notification,
     RecurringCompletion,
+    TaskMatrix,
     sequelize,
 } = require('../../models');
 
@@ -137,6 +138,10 @@ class AdminRepository {
             const taskIds = userTasks.map((t) => t.id);
             if (taskIds.length > 0) {
                 await RecurringCompletion.destroy({
+                    where: { task_id: taskIds },
+                    transaction,
+                });
+                await TaskMatrix.destroy({
                     where: { task_id: taskIds },
                     transaction,
                 });
