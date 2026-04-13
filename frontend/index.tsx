@@ -6,6 +6,7 @@ import { ToastProvider } from './components/Shared/ToastContext';
 import { TelegramStatusProvider } from './contexts/TelegramStatusContext';
 import './i18n'; // Import i18n config to initialize it
 import './styles/markdown.css'; // Import markdown styles
+import './styles/tiptap.css'; // Import Tiptap editor styles
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n'; // Import the i18n instance with its configuration
 import { getBasePath } from './config/paths';

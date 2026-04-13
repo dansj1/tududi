@@ -1,11 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    PencilSquareIcon,
-    EyeIcon,
-    PencilIcon,
-} from '@heroicons/react/24/outline';
+import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import MarkdownRenderer from '../../Shared/MarkdownRenderer';
+import TiptapEditor from '../../Shared/TiptapEditor';
 
 interface TaskContentCardProps {
     content: string;
@@ -19,18 +16,10 @@ const TaskContentCard: React.FC<TaskContentCardProps> = ({
     const { t } = useTranslation();
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(content);
-    const [contentTab, setContentTab] = useState<'edit' | 'preview'>('edit');
-    const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         setEditedContent(content);
     }, [content]);
-
-    useEffect(() => {
-        if (isEditing && contentTextareaRef.current) {
-            contentTextareaRef.current.focus();
-        }
-    }, [isEditing]);
 
     const handleStartEdit = () => {
         setIsEditing(true);
@@ -48,79 +37,26 @@ const TaskContentCard: React.FC<TaskContentCardProps> = ({
         setIsEditing(false);
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-            handleSave();
-        } else if (e.key === 'Escape') {
-            handleCancel();
-        }
-    };
-
     return (
         <div className="space-y-2">
             {isEditing ? (
                 <div className="rounded-lg shadow-sm bg-white dark:bg-gray-900 border-2 border-blue-500 dark:border-blue-400 p-6">
-                    <div className="relative">
-                        {/* Floating toggle buttons */}
-                        <div className="absolute top-2 right-2 z-10 flex space-x-1">
-                            <button
-                                type="button"
-                                onClick={() => setContentTab('edit')}
-                                className={`p-1.5 rounded-md transition-colors ${
-                                    contentTab === 'edit'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-                                }`}
-                                title={t('common.edit', 'Edit')}
-                            >
-                                <PencilIcon className="h-3 w-3" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setContentTab('preview')}
-                                className={`p-1.5 rounded-md transition-colors ${
-                                    contentTab === 'preview'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-                                }`}
-                                title={t('common.preview', 'Preview')}
-                            >
-                                <EyeIcon className="h-3 w-3" />
-                            </button>
-                        </div>
-
-                        {contentTab === 'edit' ? (
-                            <textarea
-                                ref={contentTextareaRef}
-                                value={editedContent}
-                                onChange={(e) =>
-                                    setEditedContent(e.target.value)
-                                }
-                                onKeyDown={handleKeyDown}
-                                className="w-full min-h-[200px] bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 dark:text-gray-100 resize-y font-normal pr-20"
-                                placeholder={t(
-                                    'task.contentPlaceholder',
-                                    'Add content here... (Markdown supported)'
-                                )}
-                            />
-                        ) : (
-                            <div className="w-full min-h-[200px] bg-gray-50 dark:bg-gray-800 rounded p-3 pr-20 overflow-y-auto">
-                                {editedContent ? (
-                                    <MarkdownRenderer
-                                        content={editedContent}
-                                        className="prose dark:prose-invert max-w-none"
-                                    />
-                                ) : (
-                                    <p className="text-gray-500 dark:text-gray-400 italic">
-                                        {t(
-                                            'task.noContentPreview',
-                                            'No content to preview. Switch to Edit mode to add content.'
-                                        )}
-                                    </p>
-                                )}
-                            </div>
+                    <TiptapEditor
+                        content={editedContent}
+                        onChange={setEditedContent}
+                        placeholder={t(
+                            'task.contentPlaceholder',
+                            'Add content here...'
                         )}
-                    </div>
+                        autoFocus
+                        onKeyDown={(e) => {
+                            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                                handleSave();
+                            } else if (e.key === 'Escape') {
+                                handleCancel();
+                            }
+                        }}
+                    />
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                             {t(

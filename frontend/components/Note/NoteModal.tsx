@@ -9,7 +9,7 @@ import { Note } from '../../entities/Note';
 import { Project } from '../../entities/Project';
 import { useToast } from '../Shared/ToastContext';
 import TagInput from '../Tag/TagInput';
-import MarkdownRenderer from '../Shared/MarkdownRenderer';
+import TiptapEditor from '../Shared/TiptapEditor';
 import { Tag } from '../../entities/Tag';
 import { useStore } from '../../store/useStore';
 import { useTranslation } from 'react-i18next';
@@ -17,8 +17,6 @@ import ProjectDropdown from '../Shared/ProjectDropdown';
 import ConfirmDialog from '../Shared/ConfirmDialog';
 import DiscardChangesDialog from '../Shared/DiscardChangesDialog';
 import {
-    EyeIcon,
-    PencilIcon,
     FolderIcon,
     TagIcon,
     TrashIcon,
@@ -62,7 +60,7 @@ const NoteModal: React.FC<NoteModalProps> = ({
     const titleInputRef = useRef<HTMLInputElement>(null);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isClosing, setIsClosing] = useState(false);
-    const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
+
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
@@ -527,102 +525,30 @@ const NoteModal: React.FC<NoteModalProps> = ({
                                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             {t(
                                                                 'forms.noteContent'
-                                                            )}{' '}
-                                                            <span className="text-gray-500">
-                                                                (Markdown
-                                                                supported)
-                                                            </span>
+                                                            )}
                                                         </label>
-                                                        <div className="flex space-x-1">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    setActiveTab(
-                                                                        'edit'
-                                                                    )
-                                                                }
-                                                                className={`px-3 py-1 text-xs rounded-md flex items-center space-x-1 transition-colors ${
-                                                                    activeTab ===
-                                                                    'edit'
-                                                                        ? 'bg-blue-600 text-white'
-                                                                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                                                                }`}
-                                                            >
-                                                                <PencilIcon className="h-3 w-3" />
-                                                                <span>
-                                                                    Edit
-                                                                </span>
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    setActiveTab(
-                                                                        'preview'
-                                                                    )
-                                                                }
-                                                                className={`px-3 py-1 text-xs rounded-md flex items-center space-x-1 transition-colors ${
-                                                                    activeTab ===
-                                                                    'preview'
-                                                                        ? 'bg-blue-600 text-white'
-                                                                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                                                                }`}
-                                                            >
-                                                                <EyeIcon className="h-3 w-3" />
-                                                                <span>
-                                                                    Preview
-                                                                </span>
-                                                            </button>
-                                                        </div>
                                                     </div>
 
-                                                    {activeTab === 'edit' ? (
-                                                        <textarea
-                                                            id="noteContent"
-                                                            name="content"
-                                                            value={
-                                                                formData.content ||
-                                                                ''
-                                                            }
-                                                            onChange={
-                                                                handleChange
-                                                            }
-                                                            className="block w-full h-full min-h-0 sm:border sm:border-gray-300 sm:dark:border-gray-600 sm:rounded-md shadow-sm py-2 sm:py-3 px-3 sm:px-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 sm:focus:ring-2 sm:focus:ring-blue-500 transition duration-150 ease-in-out resize-none"
-                                                            placeholder="Write your content using Markdown formatting...&#10;&#10;Examples:&#10;# Heading&#10;**Bold text**&#10;*Italic text*&#10;- List item&#10;```code```"
-                                                            autoComplete="off"
-                                                            data-testid="note-content-textarea"
-                                                        />
-                                                    ) : (
-                                                        <div className="block w-full h-full min-h-0 sm:border sm:border-gray-300 sm:dark:border-gray-600 sm:rounded-md shadow-sm py-2 px-3 sm:py-3 sm:px-3 text-sm bg-gray-50 dark:bg-gray-800 overflow-y-auto">
-                                                            {formData.content ? (
-                                                                <MarkdownRenderer
-                                                                    content={
-                                                                        formData.content
-                                                                    }
-                                                                    onContentChange={(
-                                                                        newContent
-                                                                    ) => {
-                                                                        setFormData(
-                                                                            (
-                                                                                prev
-                                                                            ) => ({
-                                                                                ...prev,
-                                                                                content:
-                                                                                    newContent,
-                                                                            })
-                                                                        );
-                                                                    }}
-                                                                />
-                                                            ) : (
-                                                                <p className="text-gray-500 dark:text-gray-400 italic">
-                                                                    No content
-                                                                    to preview.
-                                                                    Switch to
-                                                                    Edit tab to
-                                                                    add content.
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                    )}
+                                                    <TiptapEditor
+                                                        content={
+                                                            formData.content ||
+                                                            ''
+                                                        }
+                                                        onChange={(
+                                                            newContent
+                                                        ) => {
+                                                            setFormData(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    content:
+                                                                        newContent,
+                                                                })
+                                                            );
+                                                        }}
+                                                        placeholder="Start writing..."
+                                                        className="flex-1 min-h-0 [&_.tiptap-editor-content]:h-full [&_.tiptap-editor-content]:min-h-0 [&_.tiptap-editor-content]:flex-1"
+                                                        data-testid="note-content-editor"
+                                                    />
                                                 </div>
 
                                                 {/* Expandable Sections - Only show when expanded */}
